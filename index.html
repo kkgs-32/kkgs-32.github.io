@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kkgs-32</title>
+  <meta name="description" content="kkgs-32">
+  <link rel="icon" type="image/png" href="https://kkgs-32.github.io/app/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="https://kkgs-32.github.io/app/favicon.svg">
+  <link rel="shortcut icon" href="https://kkgs-32.github.io/app/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://kkgs-32.github.io/app/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="kkgs-32">
+  <link rel="manifest" href="https://kkgs-32.github.io/app/manifest.json">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZmvq16kBPs_xhlJp5FkiCzw42WhX5fM",
+      authDomain: "kkgs-32.firebaseapp.com",
+      databaseURL: "https://kkgs-32-default-rtdb.firebaseio.com",
+      projectId: "kkgs-32",
+      storageBucket: "kkgs-32.firebasestorage.app",
+      messagingSenderId: "76744845820",
+      appId: "1:76744845820:web:0c566764c5c1ae1bc4ea79",
+      measurementId: "G-H3Q5DXL6SV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    document.getElementById("loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+        })
+        .catch((error) => {
+          console.error("ログインエラー:", error.message);
+          alert("ログインエラー");
+        });
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        localStorage.removeItem("lastLoginDate");
+        location.reload();
+      }).catch((error) => {
+        console.error("ログアウトエラー:", error.message);
+        alert("ログアウトエラー");
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const postList = document.getElementById("postList");
+      const loginFormContainer = document.getElementById("loginFormContainer");
+      const blogManagementContainer = document.getElementById("blogManagementContainer");
+      const searchInput = document.getElementById("searchInput");
+      const userEmailElement = document.getElementById("userEmail");
+      const today = new Date().toISOString().split('T')[0];
+      const lastLoginDate = localStorage.getItem("lastLoginDate");
+
+      if (lastLoginDate && lastLoginDate !== today) {
+        signOut(auth).then(() => {
+          localStorage.removeItem("lastLoginDate");
+          location.reload();
+        }).catch((error) => {
+          console.error("自動ログアウトエラー: ", error);
+          alert("自動ログアウトエラー");
+        });
+      }
+
+      onAuthStateChanged(auth, user => {
+        if (user) {
+          userEmailElement.textContent = `${user.email}`;
+          showBlogManagement();
+          loadPosts();
+
+          localStorage.setItem("lastLoginDate", today);
+        } else {
+          showLoginForm();
+        }
+      });
+
+      setInterval(() => {
+        const savedDate = localStorage.getItem("lastLoginDate");
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        if (savedDate && savedDate !== currentDate) {
+          signOut(auth).then(() => {
+            localStorage.removeItem("lastLoginDate");
+            location.reload();
+          }).catch((error) => {
+            console.error("自動ログアウトエラー:", error);
+            alert("自動ログアウトエラー");
+          });
+        }
+      }, 60000);
+
+      function loadPosts() {
+        postList.innerHTML = "読み込み中…";
+
+        const q = query(collection(db, "posts"), orderBy("date", "desc"));
+
+        onSnapshot(q, (querySnapshot) => {
+          postList.innerHTML = "";
+
+          let posts = [];
+
+          querySnapshot.forEach((doc) => {
+            const post = { id: doc.id, ...doc.data() };
+            if (post.date > today) return;
+            posts.push(post);
+          });
+
+          function displayPosts(postsToShow) {
+            postList.innerHTML = "";
+            postsToShow.forEach(post => {
+              const postItem = document.createElement("div");
+              postItem.classList.add("box");
+              postItem.style.cursor = "pointer";
+              postItem.innerHTML = `
+              <p class="subtitle is-6 is-spaced">${post.date}</p>
+              <p class="title is-4 is-spaced">${post.title}</p>
+              <p class="subtitle is-5">${post.subtitle}</p>
+              `;
+              postItem.addEventListener("click", () => showPostDetail(post));
+              postList.appendChild(postItem);
+            });
+          }
+
+          displayPosts(posts);
+
+          searchInput.addEventListener("input", () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredPosts = posts.filter(post =>
+              post.title.toLowerCase().includes(searchTerm) ||
+              post.subtitle.toLowerCase().includes(searchTerm) ||
+              post.content.toLowerCase().includes(searchTerm) ||
+              post.date.includes(searchTerm) ||
+              (post.attachment && post.attachment.toLowerCase().includes(searchTerm))
+            );
+            displayPosts(filteredPosts);
+          });
+        }, (error) => {
+          postList.innerHTML = "<p>投稿を取得できませんでした。</p>";
+        });
+      }
+
+      function showPostDetail(post) {
+        const modal = document.getElementById("postModal");
+        const modalContent = document.getElementById("modalContent");
+        let urlButton = "";
+        if (post.attachment && post.attachment.trim() !== "") {
+          urlButton = `<a class="button is-info is-outlined" href="${post.attachment}" target="_blank">移動する</a>`;
+        }
+        modalContent.innerHTML = `
+        <header class="modal-card-head">
+          <p class="title is-4">${post.title}</p>
+        </header>
+        <section class="modal-card-body">
+          <p class="subtitle is-6 is-spaced">${post.date}</p>
+          <p class="title is-5">${post.subtitle}</p>
+          <hr>
+          <p class="subtitle is-6">${post.content}</p>
+          ${urlButton}
+        </section>
+        `;
+        modal.classList.add("is-active");
+      }
+
+      document.querySelector(".Modal-close").addEventListener("click", () => {
+        document.getElementById("postModal").classList.remove("is-active");
+      });
+
+      function showBlogManagement() {
+        loginFormContainer.style.display = "none";
+        blogManagementContainer.style.display = "block";
+      }
+
+      function showLoginForm() {
+        loginFormContainer.style.display = "block";
+        blogManagementContainer.style.display = "none";
+      }
+    });
+
+    const modal = document.getElementById('myModal');
+    const openModalButton = document.getElementById('openModal');
+    const closeModalButtons = document.querySelectorAll('#closeModal');
+
+    openModalButton.addEventListener('click', () => {
+      modal.classList.add('is-active');
+    });
+
+    closeModalButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        modal.classList.remove('is-active');
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <section class="section">
+    <div class="container" id="loginFormContainer" style="display:none;">
+      <h2 class="title">ログイン</h2>
+      <form id="loginForm">
+        <div class="field">
+          <label class="label">メールアドレス
+            <input class="input" type="email" id="email" autocomplete="email" required>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">パスワード
+            <input class="input" type="password" id="password" autocomplete="current-password" required>
+          </label>
+        </div>
+        <button class="button is-primary is-outlined" type="submit">ログイン</button>
+        <hr>
+        <a class="button is-info is-outlined" href="https://forms.gle/ysSTmT5r7y4uohaK8" target="_blank"
+          rel="noopener noreferrer">アカウントを作成</a>
+      </form>
+    </div>
+    <div id="blogManagementContainer" style="display:none;">
+      <div class="is-flex is-justify-content-space-between is-align-items-center">
+        <h2 class="title">記事一覧</h2>
+        <button id="openModal" class="button is-success is-outlined">menu</button>
+      </div>
+      <div class="field">
+        <div class="control has-icons-left">
+          <input class="input" type="text" id="searchInput" placeholder="記事を検索">
+          <span class="icon is-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+              viewBox="0 0 16 16">
+              <path
+                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+            </svg>
+          </span>
+        </div>
+      </div>
+      <hr>
+      <div id="postList">読み込み中…</div>
+    </div>
+    <div class="modal" id="postModal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <div id="modalContent"></div>
+        <footer class="modal-card-foot">
+          <div class="buttons">
+            <button class="button is-primary is-outlined Modal-close">閉じる</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <div class="modal" id="myModal">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">menu</p>
+        </header>
+        <section class="modal-card-body">
+          <p class="subtitle" id="userEmail"></p>
+          <div class="mb-5">
+            <a class="button is-warning is-outlined" href="https://kkgs-32.github.io/change.html">パスワードを変更</a>
+          </div>
+          <div>
+            <button class="button is-danger is-outlined" id="logoutButton">ログアウト</button>
+          </div>
+          <hr>
+          <div class="has-text-centered">
+            <img src="https://traininfo.jreast.co.jp/train_info/img/display/idsImage.gif">
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="buttons">
+            <button class="button is-primary is-outlined Modal-close" id="closeModal">閉じる</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </section>
+</body>
+
+</html>
