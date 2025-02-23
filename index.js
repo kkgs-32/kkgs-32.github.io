@@ -8,10 +8,6 @@ if ("serviceWorker" in navigator) {
         });
 }
 
-// バージョン表示用
-import { showAppVersion } from "./version.js";
-showAppVersion();
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
