@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>警告</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+</head>
+
+<body class="red darken-3 white-text">
+    <div class="container">
+        <h1><img src="https://kkgs-32.github.io/site/virus/virus.png" style="width: 20%; margin-right: 20px; vertical-align: middle;">警告</h1>
+        <h4>あなたの <span id="device"></span> からウイルスが発見されました</h4>
+        <p class="flow-text">このままではスマートフォンが発火もしくは破裂する可能性があります。</p>
+        <p class="flow-text"><span id="timer" style="font-size: 2em;">300</span> 秒以内に以下のリンクから対処してください。</p><a
+            href="https://amzn.asia/d/2L60hMj" class="btn">ウイルスを除去する</a>
+    </div>
+    <div id="alert" class="modal">
+        <div class="modal-content black-text">
+            <h4>警告</h4>
+            <p>お使いの端末からウイルスが発見されました。次のページからウイルスを除去してください。</p>
+        </div>
+        <div class="modal-footer"><button id="close" class="btn">OK</button></div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script>function play_se() { var virus = new Audio('https://kkgs-32.github.io/site/virus/virus.mp3'); virus.play(); navigator.vibrate([200, 100, 200, 100, 200, 100, 200]); } $(function () { history.pushState(null, null, null); $(window).on("popstate", function (e) { if (!e.originalEvent.state) { play_se(); history.pushState(null, null, null); } }); $('.modal').modal({ dismissible: false }); $('#alert').modal('open'); $('#close').click(function () { $('#alert').modal('close'); play_se(); }); var device = navigator.userAgent.match(/Android|iPhone|iPad/) || ['端末']; $('#device').text(device[0]); var time = 300; setInterval(function () { if (time > 0) { time--; $('#timer').text(time); } }, 1000); });</script>
+</body>
+
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お昼カウントダウン</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+</head>
+
+<body>
+  <section class="hero is-fullheight">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <h2 class="subtitle is-3" id="countdown-message">読み込み中...</h2>
+        <h1 class="subtitle is-1" id="countdown-timer">読み込み中...</h1>
+      </div>
+    </div>
+  </section>
+  <script>
+    async function fetchHolidays(year) {
+      try {
+        const response = await fetch(`https://holidays-jp.github.io/api/v1/${year}/date.json`);
+        return await response.json();
+      } catch (error) {
+        console.error("祝日データの取得に失敗しました:", error);
+        return {};
+      }
+    }
+
+    function isWeekend(date) {
+      return date.getDay() === 0 || date.getDay() === 6; // 日曜(0) or 土曜(6)
+    }
+
+    function formatDate(date) {
+      return `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)}`;
+    }
+
+    async function getNextWeekdayLunchTime() {
+      const now = new Date();
+      let nextLunchTime = new Date();
+      nextLunchTime.setHours(12, 15, 0, 0);
+
+      // 祝日データを取得
+      const holidays = await fetchHolidays(now.getFullYear());
+
+      // 12:15 を過ぎていたら翌営業日の 12:15 を探す
+      if (now >= nextLunchTime) {
+        do {
+          nextLunchTime.setDate(nextLunchTime.getDate() + 1);
+        } while (isWeekend(nextLunchTime) || holidays[formatDate(nextLunchTime)]);
+      }
+
+      return nextLunchTime;
+    }
+
+    async function updateCountdown() {
+      const now = new Date();
+      const lunchTime = await getNextWeekdayLunchTime();
+      const timeDiff = lunchTime - now;
+
+      if (timeDiff <= 0) {
+        document.getElementById("countdown-message").textContent = "お昼ご飯の時間です！🍚";
+        document.getElementById("countdown-timer").textContent = "";
+      } else {
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+        document.getElementById("countdown-message").textContent = "お昼ご飯まであと…";
+        document.getElementById("countdown-timer").textContent = `${hours}時間${minutes}分${seconds}秒`;
+        setTimeout(updateCountdown, 1000);
+      }
+    }
+
+    updateCountdown();
+  </script>
+</body>
+
+</html>
