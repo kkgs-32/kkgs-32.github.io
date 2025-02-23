@@ -1,21 +1,21 @@
-const CACHE_NAME = "kkgs-32-cache-v3";
+const CACHE_NAME = "kkgs-32-cache-v4";
 const urlsToCache = [
-    "https://kkgs-32.github.io/",
-    "https://kkgs-32.github.io/index.html",
-    "https://kkgs-32.github.io/index.js",
-    "https://kkgs-32.github.io/change.html",
-    "https://kkgs-32.github.io/change.js",
-    "https://kkgs-32.github.io/404.html",
-    "https://kkgs-32.github.io/app/apple-touch-icon.png",
-    "https://kkgs-32.github.io/app/favicon-96x96.png",
-    "https://kkgs-32.github.io/app/favicon.ico",
-    "https://kkgs-32.github.io/app/favicon.svg",
-    "https://kkgs-32.github.io/app/manifest.json",
-    "https://kkgs-32.github.io/app/service-worker.js",
-    "https://kkgs-32.github.io/app/web-app-manifest-192x192.png",
-    "https://kkgs-32.github.io/app/web-app-manifest-512x512.png",
-    "https://kkgs-32.github.io/site/",
-    "https://kkgs-32.github.io/site/index.html",
+    "/",
+    "/index.html",
+    "/index.js",
+    "/change.html",
+    "/change.js",
+    "/404.html",
+    "/app/apple-touch-icon.png",
+    "/app/favicon-96x96.png",
+    "/app/favicon.ico",
+    "/app/favicon.svg",
+    "/app/manifest.json",
+    "/app/service-worker.js",
+    "/app/web-app-manifest-192x192.png",
+    "/app/web-app-manifest-512x512.png",
+    "/site/",
+    "/site/index.html",
 
 ];
 

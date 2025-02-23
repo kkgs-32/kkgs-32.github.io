@@ -1,9 +1,9 @@
 {
   "name": "kkgs-32",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "start_url": "https://kkgs-32.github.io",
   "display": "fullscreen",
-  "theme_color": "#ffffff",
+  "theme_color": "#CCF0FF",
   "background_color": "#CCF0FF",
   "icons": [
     {
