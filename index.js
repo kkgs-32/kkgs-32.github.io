@@ -1,7 +1,29 @@
 if ("serviceWorker" in navigator) {
+    let refreshing;
+
+    // Service Worker 登録
     navigator.serviceWorker.register("https://kkgs-32.github.io/app/service-worker.js")
         .then((registration) => {
             console.log("Service Worker registered with scope:", registration.scope);
+
+            // 新しい Service Worker がインストールされた場合
+            registration.addEventListener("updatefound", () => {
+                const newSW = registration.installing;
+                newSW.addEventListener("statechange", () => {
+                    if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+                        // 新しいバージョンがインストールされて、ページがリロードされていない場合
+                        if (!refreshing) {
+                            refreshing = true;
+                            // アラートを表示
+                            if (confirm("新しいバージョンがあります。再読み込みしてインストールしますか？")) {
+                                // 新しい Service Worker をすぐにアクティベート
+                                newSW.postMessage({ type: "SKIP_WAITING" });
+                                window.location.reload();
+                            }
+                        }
+                    }
+                });
+            });
         })
         .catch((error) => {
             console.error("Service Worker registration failed:", error);

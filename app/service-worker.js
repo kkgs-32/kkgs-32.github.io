@@ -1,6 +1,7 @@
 const CACHE_NAME = "kkgs-32-cache-v1";
 const urlsToCache = [
-    "/",
+    "https://kkgs-32.github.io",
+    "https://kkgs-32.github.io/",
     "https://kkgs-32.github.io/index.html",
     "https://kkgs-32.github.io/index.js",
     "https://kkgs-32.github.io/change.html",
@@ -14,6 +15,7 @@ const urlsToCache = [
     "https://kkgs-32.github.io/app/service-worker.js",
     "https://kkgs-32.github.io/app/web-app-manifest-192x192.png",
     "https://kkgs-32.github.io/app/web-app-manifest-512x512.png",
+    "https://kkgs-32.github.io/site/",
     "https://kkgs-32.github.io/site/index.html",
 
 ];
@@ -21,32 +23,31 @@ const urlsToCache = [
 // インストール時にキャッシュを保存
 self.addEventListener("install", (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(urlsToCache);
-        })
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.addAll(urlsToCache);
+      })
     );
-});
+  });
 
-// フェッチ時にキャッシュから取得
-self.addEventListener("fetch", (event) => {
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
-    );
-});
-
-// 古いキャッシュの削除
+// アクティベート時に古いキャッシュを削除
 self.addEventListener("activate", (event) => {
+    const currentCaches = [CACHE_NAME];
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map((cache) => {
-                    if (cache !== CACHE_NAME) {
-                        return caches.delete(cache);
+                cacheNames.map((cacheName) => {
+                    if (!currentCaches.includes(cacheName)) {
+                        return caches.delete(cacheName);
                     }
                 })
             );
         })
     );
+});
+
+// 新しい Service Worker がインストールされるとき
+self.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "SKIP_WAITING") {
+        self.skipWaiting(); // 新しい Service Worker を即座に有効化
+    }
 });
