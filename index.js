@@ -1,6 +1,6 @@
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("https://kkgs-32.github.io/app/service-worker.js")
-    .then((registration) => {
+        .then((registration) => {
             console.log("Service Worker registered with scope:", registration.scope);
         })
         .catch((error) => {

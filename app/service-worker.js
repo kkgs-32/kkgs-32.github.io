@@ -15,7 +15,7 @@ const urlsToCache = [
     "https://kkgs-32.github.io/app/web-app-manifest-192x192.png",
     "https://kkgs-32.github.io/app/web-app-manifest-512x512.png",
     "https://kkgs-32.github.io/site/index.html",
-    
+
 ];
 
 // インストール時にキャッシュを保存
