@@ -1,6 +1,5 @@
-const CACHE_NAME = "kkgs-32-cache-v2";
+const CACHE_NAME = "kkgs-32-cache-v3";
 const urlsToCache = [
-    "https://kkgs-32.github.io",
     "https://kkgs-32.github.io/",
     "https://kkgs-32.github.io/index.html",
     "https://kkgs-32.github.io/index.js",
