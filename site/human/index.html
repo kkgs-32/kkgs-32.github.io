@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>私は人間？</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+
+<body>
+  <div id="content">
+    <section class="hero is-fullheight">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <p class="title">
+            自分はロボットではないかと不安な方へ
+          </p>
+          <p class="subtitle">
+            下のチェックボックスをクリックして確かめてみましょう。
+          </p>
+          <div style="margin: 20px auto; width: 300px; text-align: center;">
+            <div id="recaptcha"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+    const se = new Audio('https://kkgs-32.github.io/site/human/human.wav');
+    function onVerify(response) {
+      if (response) {
+        se.play();
+        document.getElementById("content").innerHTML = `
+          <section class="hero is-primary is-fullheight">
+            <div class="hero-body">
+              <div class="container has-text-centered">
+                <p class="title has-text-white">おめでとうございます。あなたは人間です。</p>
+                <p class="subtitle has-text-white">
+                  ご安心ください。あなたはテストを突破することにより人間だと証明されました。
+                </p>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+    }
+    window.onload = function () {
+      grecaptcha.render("recaptcha", {
+        sitekey: "6LdE3NAqAAAAAJgoHPguM6RUD3mVIiBPRfoggVuT",
+        callback: onVerify
+      });
+    };
+  </script>
+</body>
+
+</html>
