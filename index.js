@@ -1,7 +1,7 @@
 if ("serviceWorker" in navigator) {
     let refreshing;
 
-    navigator.serviceWorker.register("/service-worker.js", { scope: '/' })
+    navigator.serviceWorker.register("https://kkgs-32.github.io/service-worker.js", { scope: '/' })
         .then((registration) => {
             console.log("Service Worker registered with scope:", registration.scope);
 
