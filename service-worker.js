@@ -1,4 +1,4 @@
-const CACHE_NAME = "kkgs-32-cache-v7";
+const CACHE_NAME = "kkgs-32-cache-v8";
 const urlsToCache = [
     "/",
     "/index.html",
@@ -11,7 +11,7 @@ const urlsToCache = [
     "/app/favicon.ico",
     "/app/favicon.svg",
     "/app/manifest.json",
-    "/app/service-worker.js",
+    "/service-worker.js",
     "/app/web-app-manifest-192x192.png",
     "/app/web-app-manifest-512x512.png",
     "/site/",
