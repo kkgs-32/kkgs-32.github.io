@@ -34,16 +34,22 @@
       navigator.serviceWorker.register('https://kkgs-32.github.io/sw.js')
         .then((reg) => {
           console.log('Service Worker registered:', reg);
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('新しいバージョンのSWが利用可能！');
-                if (confirm('新しいバージョンがあります。更新しますか？')) {
-                  location.reload();
-                }
-              }
-            });
+          reg.active.postMessage({ type: 'GET_CACHE_NAME' }, [reg.active]);
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data) {
+              const cacheName = event.data;
+              console.log('Received CACHE_NAME from SW:', cacheName);
+              reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    if (confirm(`新しいバージョン ${cacheName} があります。更新しますか？`)) {
+                      location.reload();
+                    }
+                  }
+                });
+              });
+            }
           });
         })
         .catch((err) => console.log('Service Worker registration failed:', err));
