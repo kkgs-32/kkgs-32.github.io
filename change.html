@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パスワード変更｜kkgs-32</title>
+  <meta name="description" content="kkgs-32">
+  <link rel="icon" type="image/png" href="https://kkgs-32.github.io/app/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="https://kkgs-32.github.io/app/favicon.svg">
+  <link rel="shortcut icon" href="https://kkgs-32.github.io/app/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://kkgs-32.github.io/app/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="kkgs-32">
+  <link rel="manifest" href="https://kkgs-32.github.io/app/manifest.json">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZmvq16kBPs_xhlJp5FkiCzw42WhX5fM",
+      authDomain: "kkgs-32.firebaseapp.com",
+      projectId: "kkgs-32",
+      storageBucket: "kkgs-32.firebasestorage.app",
+      messagingSenderId: "76744845820",
+      appId: "1:76744845820:web:0c566764c5c1ae1bc4ea79",
+      measurementId: "G-H3Q5DXL6SV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const currentPassword = document.getElementById("currentPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (newPassword !== confirmPassword) {
+        alert("新しいパスワードが一致しません。");
+        return;
+      }
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, currentPassword);
+        await updatePassword(userCredential.user, newPassword);
+        window.location.href = "https://kkgs-32.github.io";
+        alert("パスワードが変更されました");
+      } catch (error) {
+        alert("エラー");
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">パスワード変更</h1>
+      <form id="changePasswordForm">
+        <div class="field">
+          <label class="label">メールアドレス
+            <div class="control">
+              <input class="input" type="email" id="email" autocomplete="email" required>
+            </div>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">現在のパスワード
+            <div class="control">
+              <input class="input" type="password" id="currentPassword" autocomplete="current-password" required>
+            </div>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">新しいパスワード
+            <div class="control">
+              <input class="input" type="password" id="newPassword" autocomplete="current-password" required>
+            </div>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">新しいパスワード（確認）
+            <div class="control">
+              <input class="input" type="password" id="confirmPassword" autocomplete="current-password" required>
+            </div>
+          </label>
+        </div>
+        <div class="control">
+          <button class="button is-link is-outlined" type="submit">パスワードを変更</button>
+        </div>
+      </form>
+    </div>
+    <hr>
+    <a class="button is-primary is-outlined" href="https://kkgs-32.github.io">戻る</a>
+  </section>
+</body>
+
+</html>
