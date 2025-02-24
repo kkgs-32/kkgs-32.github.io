@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-title" content="kkgs-32">
   <link rel="manifest" href="https://kkgs-32.github.io/app/manifest.json">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
-  <script type="module" src="index.js"></script>
+  <script type="module" src="https://kkgs-32.github.io/index.js"></script>
   <script>
     function checkOnlineStatus() {
       const offlineMessage = document.getElementById('offline-message');
@@ -29,6 +29,25 @@
     window.addEventListener('load', checkOnlineStatus);
     window.addEventListener('online', checkOnlineStatus);
     window.addEventListener('offline', checkOnlineStatus);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('https://kkgs-32.github.io/sw.js')
+        .then((reg) => {
+          console.log('Service Worker registered:', reg);
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('新しいバージョンのSWが利用可能！');
+                if (confirm('新しいバージョンがあります。更新しますか？')) {
+                  location.reload();
+                }
+              }
+            });
+          });
+        })
+        .catch((err) => console.log('Service Worker registration failed:', err));
+    }
   </script>
 </head>
 
