@@ -15,41 +15,19 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
   <script type="module" src="https://kkgs-32.github.io/index.js"></script>
   <script>
-    function checkOnlineStatus() {
-      const offlineMessage = document.getElementById('offline-message');
-      const bodyContent = document.getElementById('body-content');
-      if (navigator.onLine) {
-        offlineMessage.style.display = 'none';
-        bodyContent.style.pointerEvents = 'auto';
-      } else {
-        offlineMessage.style.display = 'flex';
-        bodyContent.style.pointerEvents = 'none';
-      }
-    }
-    window.addEventListener('load', checkOnlineStatus);
-    window.addEventListener('online', checkOnlineStatus);
-    window.addEventListener('offline', checkOnlineStatus);
-
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('https://kkgs-32.github.io/sw.js')
         .then((reg) => {
           console.log('Service Worker registered:', reg);
-          reg.active.postMessage({ type: 'GET_CACHE_NAME' }, [reg.active]);
-          navigator.serviceWorker.addEventListener('message', (event) => {
-            if (event.data) {
-              const cacheName = event.data;
-              console.log('Received CACHE_NAME from SW:', cacheName);
-              reg.addEventListener('updatefound', () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    if (confirm(`新しいバージョン ${cacheName} があります。更新しますか？`)) {
-                      location.reload();
-                    }
-                  }
-                });
-              });
-            }
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                if (confirm('新しいバージョンがあります。更新しますか？')) {
+                  location.reload();
+                }
+              }
+            });
           });
         })
         .catch((err) => console.log('Service Worker registration failed:', err));
@@ -58,18 +36,7 @@
 </head>
 
 <body>
-
-  <section id="offline-message" class="hero is-danger is-fullheight"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;">
-    <div class="hero-body"
-      style="display: flex; justify-content: center; align-items: center; background-color: #d1fff8;">
-      <div class="container has-text-centered">
-        <p class="title is-3" style="color: #404654;">インターネットに接続してください</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="body-content" style="z-index: 1;">
+  <section class="section">
 
     <div class="container" id="loginFormContainer" style="display:none;">
       <h2 class="title">ログイン</h2>
