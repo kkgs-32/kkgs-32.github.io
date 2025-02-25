@@ -23,9 +23,8 @@
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                if (confirm('新しいバージョンがあります。更新しますか？')) {
+                alert('新しいバージョンがあります。更新しますか？');
                   location.reload();
-                }
               }
             });
           });
