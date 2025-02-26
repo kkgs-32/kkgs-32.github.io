@@ -1,4 +1,4 @@
-const CACHE_NAME = 'my-app-cache-v3';
+const CACHE_NAME = 'my-app-cache-v4.1.3';
 const BASE_URL = 'https://kkgs-32.github.io';
 const urlsToCache = [
     `${BASE_URL}/`,
