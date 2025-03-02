@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v11.4.0.5';
+const CACHE_NAME = 'v11.4.0.6';
 const UPDATE_MESSAGE = "googleアナリティクスの導入";
 const BASE_URL = 'https://kkgs-32.github.io'; // 相対パスを使用する場合は空文字列に
 const urlsToCache = [
