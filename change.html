@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H3Q5DXL6SV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-H3Q5DXL6SV');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パスワード変更・リセット｜kkgs-32</title>
+  <meta name="description" content="kkgs-32">
+  <link rel="icon" type="image/png" href="app/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="app/favicon.svg">
+  <link rel="shortcut icon" href="app/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="app/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="kkgs-32">
+  <link rel="manifest" href="app/manifest.json">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZmvq16kBPs_xhlJp5FkiCzw42WhX5fM",
+      authDomain: "kkgs-32.firebaseapp.com",
+      projectId: "kkgs-32",
+      storageBucket: "kkgs-32.firebasestorage.app",
+      messagingSenderId: "76744845820",
+      appId: "1:76744845820:web:0c566764c5c1ae1bc4ea79",
+      measurementId: "G-H3Q5DXL6SV"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const getParameterByName = (name, url = window.location.href) => {
+      name = name.replace(/[\[\]]/g, '\\$&');
+      const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+      const results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    };
+    const mode = getParameterByName('mode');
+    const sections = {
+      change: document.getElementById('changePasswordSection'),
+      reset: document.getElementById('resetPasswordSection'),
+      error: document.getElementById('errorSection')
+    };
+    const setSectionVisibility = (visibleSection) => {
+      Object.keys(sections).forEach(key => sections[key].style.display = key === visibleSection ? 'block' : 'none');
+    };
+
+    if (mode === 'change') {
+      setSectionVisibility('change');
+      document.title = "パスワード変更｜kkgs-32";
+    } else if (mode === 'reset') {
+      setSectionVisibility('reset');
+      document.title = "パスワードリセット｜kkgs-32";
+    } else {
+      setSectionVisibility('error');
+    }
+
+    document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const { email, currentPassword, newPassword, confirmPassword } = e.target.elements;
+      if (newPassword.value !== confirmPassword.value) {
+        alert("新しいパスワードが一致しません。もう一度入力してください。");
+        return;
+      }
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email.value, currentPassword.value);
+        await updatePassword(userCredential.user, newPassword.value);
+        alert("パスワードが正常に変更されました。");
+        window.location.href = "https://kkgs-32.web.app";
+      } catch (error) {
+        console.error("パスワード変更エラー:", error);
+        const errorMessages = {
+          "auth/wrong-password": "現在のパスワードが正しくありません。",
+          "auth/invalid-credential": "メールアドレスと現在のパスワードが正しくありません。",
+          "auth/user-not-found": "指定されたメールアドレスのユーザーが見つかりません。",
+          "auth/network-request-failed": "ネットワークエラーが発生しました。ネットワーク接続を確認してください。",
+          default: `パスワードの変更に失敗しました。時間をおいてもう一度お試しください。\nエラーコード:${error.code}`
+        };
+        alert(errorMessages[error.code] || errorMessages.default);
+      }
+    });
+
+    document.getElementById("resetPasswordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("resetEmail").value;
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("パスワード再設定メールを送信しました。");
+      } catch (error) {
+        console.error("パスワード再設定メール送信エラー:", error);
+        const errorMessages = {
+          "auth/user-not-found": "指定されたメールアドレスのユーザーが見つかりません。",
+          "auth/invalid-email": "無効なメールアドレスです。",
+          "auth/network-request-failed": "ネットワークエラーが発生しました。ネットワーク接続を確認してください。",
+          default: `パスワード再設定メールの送信に失敗しました。時間をおいてもう一度お試しください。\nエラーコード:${error.code}`
+        };
+        alert(errorMessages[error.code] || errorMessages.default);
+      }
+    });
+
+    document.getElementById("backButton").addEventListener('click', () => {
+      window.location.href = "https://kkgs-32.web.app";
+    });
+  </script>
+</head>
+
+<body>
+  <section class="section">
+    <div class="container" id="changePasswordSection" style="display: none;">
+      <h1 class="title">パスワード変更</h1>
+      <form id="changePasswordForm">
+        <div class="field">
+          <label class="label">
+            メールアドレス
+            <div class="control">
+              <input class="input" type="email" id="email" autocomplete="email" required>
+            </div>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">
+            現在のパスワード
+            <div class="control">
+              <input class="input" type="password" id="currentPassword" autocomplete="current-password" required>
+            </div>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">
+            新しいパスワード
+            <div class="control">
+              <input class="input" type="password" id="newPassword" autocomplete="current-password" required>
+            </div>
+          </label>
+        </div>
+        <div class="field">
+          <label class="label">
+            新しいパスワード（確認）
+            <div class="control">
+              <input class="input" type="password" id="confirmPassword" autocomplete="current-password" required>
+            </div>
+          </label>
+        </div>
+        <div class="control">
+          <button class="button is-link is-outlined" type="submit">パスワードを変更</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="container" id="resetPasswordSection" style="display: none;">
+      <h2 class="title">パスワードを忘れた場合</h2>
+      <form id="resetPasswordForm">
+        <div class="field">
+          <label class="label">
+            メールアドレス
+            <div class="control">
+              <input class="input" type="email" id="resetEmail" autocomplete="email" required>
+            </div>
+          </label>
+        </div>
+        <div class="control">
+          <button class="button is-warning is-outlined" type="submit">パスワード再設定メールを送信</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="container" id="errorSection" style="display: none;">
+      <h2 class="title">エラー</h2>
+      <p>不正なアクセスです。</p>
+    </div>
+
+    <hr>
+    <button class="button is-primary is-outlined" id="backButton">戻る</button>
+  </section>
+</body>
+
+</html>
