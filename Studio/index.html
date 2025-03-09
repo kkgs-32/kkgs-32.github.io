@@ -10,16 +10,19 @@
 
     gtag('config', 'G-H3Q5DXL6SV');
   </script>
+  <script>
+    if (location.hostname === "kkgs-32.firebaseapp.com") { location.replace("https://kkgs-32.web.app" + location.pathname + location.search); }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Studio｜kkgs-32</title>
   <meta name="description" content="kkgs-32">
-  <link rel="icon" type="image/png" href="https://kkgs-32.github.io/app/favicon-96x96.png" sizes="96x96">
-  <link rel="icon" type="image/svg+xml" href="https://kkgs-32.github.io/app/favicon.svg">
-  <link rel="shortcut icon" href="https://kkgs-32.github.io/app/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="https://kkgs-32.github.io/app/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="https://kkgs-32.web.app/app/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="https://kkgs-32.web.app/app/favicon.svg">
+  <link rel="shortcut icon" href="https://kkgs-32.web.app/app/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://kkgs-32.web.app/app/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-title" content="kkgs-32">
-  <link rel="manifest" href="https://kkgs-32.github.io/app/manifest.json">
+  <link rel="manifest" href="https://kkgs-32.web.app/app/manifest.json">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
   <script type="module">
     import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
@@ -51,7 +54,12 @@
     };
 
     const editPost = (postId, title, subtitle, content, attachment, date, imageString) => {
-      Object.assign(document.forms.postForm, { title: { value: title }, subtitle: { value: subtitle }, content: { value: content.replace(/<br>/g, "\n") }, attachment: { value: attachment }, date: { value: date } });
+      const form = document.forms.postForm;
+      form.title.value = title;
+      form.subtitle.value = subtitle;
+      form.content.value = content.replace(/<br>/g, "\n");
+      form.attachment.value = attachment;
+      form.date.value = date;
       editingPostId = postId;
       editingImageString = imageString;
       const imagePreview = document.getElementById("imagePreview");
@@ -59,21 +67,30 @@
       imagePreview.style.display = imageString ? "block" : "none";
     };
 
+
     const handleImageUpload = (event) => {
       const file = event.target.files[0];
       if (!file) return;
-      if (file.size > 512000) { alert("画像サイズが大きすぎます。"); document.getElementById("imageFile").value = ''; return; } // 500 * 1024
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          canvas.getContext('2d').drawImage(img, 0, 0);
-          editingImageString = canvas.toDataURL('image/png').split(",")[1];
+          const ctx = canvas.getContext('2d');
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 500 * 1024;
+          if (file.size > maxSize) {
+            const scale = Math.sqrt(maxSize / file.size);
+            width *= scale;
+            height *= scale;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          editingImageString = canvas.toDataURL('image/jpeg', 0.8).split(",")[1];
           const imagePreview = document.getElementById("imagePreview");
-          imagePreview.src = `data:image/png;base64,${editingImageString}`;
+          imagePreview.src = `data:image/jpeg;base64,${editingImageString}`;
           imagePreview.style.display = "block";
           document.getElementById("attachment").value = '';
         };
