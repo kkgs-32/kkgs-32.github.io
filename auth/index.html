@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, viewport-fit=cover">
+    <title>KKGS-32｜ログイン</title>
+    <link rel="stylesheet" href="/css/bulma.css">
+    <script src="/img/img.js"></script>
+    <script type="module">
+        import { auth, signInWithEmailAndPassword } from "/app/firebase.js";
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = '/';
+            } catch (error) {
+                let userMessage = 'エラーが発生しました';
+                switch (error.code) {
+                    case 'auth/invalid-credential':
+                        userMessage = 'メールアドレスまたはパスワードが間違っています';
+                        break;
+                    case 'auth/user-disabled':
+                        userMessage = '現在メンテナンス中のため、入力されたメールアドレスでは一時的にアクセスできません';
+                        break;
+                }
+                alert(userMessage);
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <section class="section">
+        <a href="/">
+            <img data-light="/img/head.svg" data-dark="/img/d-head.svg" class="theme-img kkgs-32">
+        </a>
+        <a href="/auth/">
+            <p class="subtitle is-4">ログイン</p>
+        </a>
+        <hr>
+        <form id="loginForm">
+            <div class="field mb-5">
+                <input class="input" type="email" id="email" autocomplete="username" placeholder="メールアドレス" required>
+            </div>
+            <div class="field mb-5">
+                <input class="input" type="password" id="password" autocomplete="current-password" placeholder="パスワード"
+                    required>
+            </div>
+            <button class="button is-primary is-outlined" type="submit">ログイン</button>
+            <hr>
+            <div class="mb-5">
+                <a class="button is-info is-outlined" href="/auth/new.html">アカウントを作成</a>
+            </div>
+            <a class="button is-warning is-outlined" href="/auth/reset.html">パスワードを忘れた場合</a>
+        </form>
+    </section>
+</body>
+
+</html>
